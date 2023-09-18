@@ -97,16 +97,17 @@ DT::datatable(sampleInfo)
 ```
 
 # 分析流程
+此处使用转录组分析流程laowang1992/RNAseq_workflow<sup>[1](#ref)</sup>进行分析。
 
 ```{r, fig.cap="分析流程图", fig.align='center'}
 knitr::include_graphics("./image/转录组分析流程图.png")
 ```
 
 ## 数据过滤
-测序下机后的数据为raw data。使用fastp<sup>[1](#ref)</sup>（version: 0.20.0）对raw data进行过滤，去除测序接头（adapter）、质量较低以及太短的reads得到clean data。统计过滤前后total bases、total reads、Q30、Q20、GC content以及有效数据比率，同时使用FastQC（version: 0.11.8）对过滤前后的数据进行质量评估。
+测序下机后的数据为raw data。使用fastp<sup>[2](#ref)</sup>（version: 0.20.0）对raw data进行过滤，去除测序接头（adapter）、质量较低以及太短的reads得到clean data。统计过滤前后total bases、total reads、Q30、Q20、GC content以及有效数据比率，同时使用FastQC（version: 0.11.8）对过滤前后的数据进行质量评估。
 
 ## 比对到参考基因组
-使用`r aligner`<sup>[2](#ref)</sup>（version: `r if (aligner=="hisat2") {"2.1.0"} else if (aligner=="STAR") {"2.7.3a"}`）将clean reads比对到`r genome`参考基因组<sup>[3](#ref)</sup>（`r genome_url` ）上，得到SAM（Sequence Alignment/Map）格式文件<sup>[4](#ref)</sup>，然后使用sambamba<sup>[5](#ref)</sup>（version: 0.8.2）对比对结果（SAM文件）按照染色体和位置进行排序并转换为BAM（Binary Alignment/Map）格式文件<sup>[4](#ref)</sup>。HISAT2可以使用更少资源的同时具有更快的速度。比对完成后，我们对比对结果进行评估，统计比对率和唯一比对率以及基因覆盖度。
+使用`r aligner`<sup>[3](#ref)</sup>（version: `r if (aligner=="hisat2") {"2.1.0"} else if (aligner=="STAR") {"2.7.3a"}`）将clean reads比对到`r genome`参考基因组<sup>[4](#ref)</sup>（`r genome_url` ）上，得到SAM（Sequence Alignment/Map）格式文件<sup>[5](#ref)</sup>，然后使用sambamba<sup>[6](#ref)</sup>（version: 0.8.2）对比对结果（SAM文件）按照染色体和位置进行排序并转换为BAM（Binary Alignment/Map）格式文件<sup>[5](#ref)</sup>。HISAT2可以使用更少资源的同时具有更快的速度。比对完成后，我们对比对结果进行评估，统计比对率和唯一比对率以及基因覆盖度。
 
 ## 饱和曲线检查
 利用转录组数据计算表达量的精度受到样本量（测序深度）的影响，因此需要进行饱和曲线检查。基本思想是分别取总的RNA reads 5%、10%、...、95%、100%并计算RPKM值，如果测序深度饱和，则估计的RPKM值是稳定的或可重复的。具体的算法是通过计算“Percent Relative Error”反应reads子集估计的RPKM值（即RPKM~obs~）偏离真实表达水平（RPKM~real~）的程度，公式如下：
@@ -114,19 +115,19 @@ knitr::include_graphics("./image/转录组分析流程图.png")
 $${Percent Relative Error} = {\cfrac{\lvert RPKM_{obs}-RPKM_{real}\rvert}{RPKM_{real}}}\times100$$
 
 ## 计算表达量
-根据比对结果（BAM文件），我们使用R（version: 4.2.1）软件的扩展包Rsubread<sup>[6](#ref)</sup>（version: 2.10.5）中的featureCounts函数计算每个基因的表达量（read count）并进行归一化处理（normalization），得到TPM（Transcripts Per Kilobase of exon model per Million mapped reads）和TMM（trimmed mean of M value）表达矩阵。
+根据比对结果（BAM文件），我们使用R（version: 4.2.1）软件的扩展包Rsubread<sup>[7](#ref)</sup>（version: 2.10.5）中的featureCounts函数计算每个基因的表达量（read count）并进行归一化处理（normalization），得到TPM（Transcripts Per Kilobase of exon model per Million mapped reads）和TMM（trimmed mean of M value）表达矩阵。
 
 ## 差异表达分析
-根据基因表达矩阵（read count）文件，在有生物学重复的情况下，使用R（version: 4.2.1）软件的扩展包DESeq2<sup>[7](#ref)</sup>（version: 1.36.0）进行差异表达分析，在没有生物学重复的情况下，则使用R扩展包edgeR<sup>[8](#ref)</sup>（version: 3.38.4）进行差异表达分析。首先过滤低表达量基因，保留至少在`r min_reps`个样本中表达量大于`r min_cpm` CMP（Counts Per Million）的基因，然后对于log2FoldChange绝对值大于`r log2FC``，并且padj小于`r de_padj`的基因则认为是差异表达基因。
+根据基因表达矩阵（read count）文件，在有生物学重复的情况下，使用R（version: 4.2.1）软件的扩展包DESeq2<sup>[8](#ref)</sup>（version: 1.36.0）进行差异表达分析，在没有生物学重复的情况下，则使用R扩展包edgeR<sup>[9](#ref)</sup>（version: 3.38.4）进行差异表达分析。首先过滤低表达量基因，保留至少在`r min_reps`个样本中表达量大于`r min_cpm` CMP（Counts Per Million）的基因，然后对于log2FoldChange绝对值大于`r log2FC``，并且padj小于`r de_padj`的基因则认为是差异表达基因。
 
 ## 富集分析
-在差异表达分析之后进行GO和KEGG富集分析。我们使用R（version: 4.2.1）软件的扩展包clusterProfiler<sup>[9](#ref)</sup>（version: 4.4.4）进行Over-representation analysis（ORA）和Gene Set Enrichment Analysis（GSEA）这两种形式的富集分析。ORA是指在按照一定的*p*-adjust和log2FoldChange标准得到差异表达基因并于基因组背景相比较，找到差异表达基因显著富集的GO term或KEGG pathway，此处以adjusted *p*-value < `r enrich_pvalue`为筛选标准。GSEA的基本思想是将基因按照两组样本中差异表达程度排序，检验预先定义的基因集（GO或KEGG）是否排列在顶端或底端，GSEA可以充分利用基因差异表达程度的信息，排除人为筛选差异表达基因的主观性，是一种更先进富集方法，与over-representation富集方法互为补充，此处以*p*.adjust < `r gsePadj`为筛选标准。
+在差异表达分析之后进行GO和KEGG富集分析。我们使用R（version: 4.2.1）软件的扩展包clusterProfiler<sup>[10](#ref)</sup>（version: 4.4.4）进行Over-representation analysis（ORA）和Gene Set Enrichment Analysis（GSEA）这两种形式的富集分析。ORA是指在按照一定的*p*-adjust和log2FoldChange标准得到差异表达基因并于基因组背景相比较，找到差异表达基因显著富集的GO term或KEGG pathway，此处以adjusted *p*-value < `r enrich_pvalue`为筛选标准。GSEA的基本思想是将基因按照两组样本中差异表达程度排序，检验预先定义的基因集（GO或KEGG）是否排列在顶端或底端，GSEA可以充分利用基因差异表达程度的信息，排除人为筛选差异表达基因的主观性，是一种更先进富集方法，与over-representation富集方法互为补充，此处以*p*.adjust < `r gsePadj`为筛选标准。
 
 ### GO富集分析 {-}
-Gene Ontology（简称GO）是一个国际标准化的基因功能分类体系，提供了一套动态更新的标准词汇表（controlled vocabulary）来全面描述生物体中基因和基因产物的属性。GO总共有三个ontology（本体），分别描述基因的分子功能（molecular function，MF）、所处的细胞位置（cellular component，CC）、参与的生物过程（biological process，BP）。GO的基本单位是term（词条、节点），每个term都对应一种或一类特定的功能<sup>[10](#ref)</sup>。
+Gene Ontology（简称GO）是一个国际标准化的基因功能分类体系，提供了一套动态更新的标准词汇表（controlled vocabulary）来全面描述生物体中基因和基因产物的属性。GO总共有三个ontology（本体），分别描述基因的分子功能（molecular function，MF）、所处的细胞位置（cellular component，CC）、参与的生物过程（biological process，BP）。GO的基本单位是term（词条、节点），每个term都对应一种或一类特定的功能<sup>[11](#ref)</sup>。
 
 ### KEGG富集分析 {-}
-KEGG（Kyoto Encyclopedia of Genes and Genomes）是系统分析基因产物在细胞中的代谢途径（Pathway）以及这些基因产物功能的主要公共数据库，利用KEGG可以进一步研究基因在生物学上的复杂行为<sup>[11](#ref)</sup>。
+KEGG（Kyoto Encyclopedia of Genes and Genomes）是系统分析基因产物在细胞中的代谢途径（Pathway）以及这些基因产物功能的主要公共数据库，利用KEGG可以进一步研究基因在生物学上的复杂行为<sup>[12](#ref)</sup>。
 
 # 分析结果
 ## 数据过滤
@@ -394,20 +395,21 @@ for (i in 1:nrow(contrast)) {
 
 # 参考文献 {-}
 <div id="ref"></div>
-1. Chen, S., Zhou, Y., Chen, Y., & Gu, J. (2018). fastp: an ultra-fast all-in-one FASTQ preprocessor. Bioinformatics (Oxford, England), 34(17), i884–i890. https://doi.org/10.1093/bioinformatics/bty560
+1. Wang Pengfei. (2023). laowang1992/RNAseq_workflow: a workflow for processing transcriptome sequencing data (1.0.0). Zenodo. https://doi.org/10.5281/zenodo.8354341
+2. Chen, S., Zhou, Y., Chen, Y., & Gu, J. (2018). fastp: an ultra-fast all-in-one FASTQ preprocessor. Bioinformatics (Oxford, England), 34(17), i884–i890. https://doi.org/10.1093/bioinformatics/bty560
 ```{r, results='asis'}
 if (aligner == "hisat2") {
-  cat("2. Kim, D., Paggi, J. M., Park, C., Bennett, C., & Salzberg, S. L. (2019). Graph-based genome alignment and genotyping with HISAT2 and HISAT-genotype. Nature biotechnology, 37(8), 907–915. https://doi.org/10.1038/s41587-019-0201-4\n")
+  cat("3. Kim, D., Paggi, J. M., Park, C., Bennett, C., & Salzberg, S. L. (2019). Graph-based genome alignment and genotyping with HISAT2 and HISAT-genotype. Nature biotechnology, 37(8), 907–915. https://doi.org/10.1038/s41587-019-0201-4\n")
 } else if (aligner == "STAR") {
-  cat("2. Dobin, A., Davis, C. A., Schlesinger, F., Drenkow, J., Zaleski, C., Jha, S., Batut, P., Chaisson, M., & Gingeras, T. R. (2013). STAR: ultrafast universal RNA-seq aligner. Bioinformatics (Oxford, England), 29(1), 15–21. https://doi.org/10.1093/bioinformatics/bts635\n")
+  cat("3. Dobin, A., Davis, C. A., Schlesinger, F., Drenkow, J., Zaleski, C., Jha, S., Batut, P., Chaisson, M., & Gingeras, T. R. (2013). STAR: ultrafast universal RNA-seq aligner. Bioinformatics (Oxford, England), 29(1), 15–21. https://doi.org/10.1093/bioinformatics/bts635\n")
 }
 ```
-3. `r genome_ref`
-4. Li, H., Handsaker, B., Wysoker, A., Fennell, T., Ruan, J., Homer, N., Marth, G., Abecasis, G., Durbin, R., & 1000 Genome Project Data Processing Subgroup (2009). The Sequence Alignment/Map format and SAMtools. Bioinformatics (Oxford, England), 25(16), 2078–2079 https://doi.org/10.1093/bioinformatics/btp352
-5. Tarasov, A., Vilella, A. J., Cuppen, E., Nijman, I. J., & Prins, P. (2015). Sambamba: fast processing of NGS alignment formats Bioinformatics (Oxford, England), 31(12), 2032–2034. https://doi.org/10.1093/bioinformatics/btv098
-6. Liao, Y., Smyth, G. K., & Shi, W. (2019). The R package Rsubread is easier, faster, cheaper and better for alignment and quantification of RNA sequencing reads. Nucleic acids research, 47(8), e47. https://doi.org/10.1093/nar/gkz114
-7. Love, M. I., Huber, W., & Anders, S. (2014). Moderated estimation of fold change and dispersion for RNA-seq data with DESeq2. Genome biology, 15(12), 550. https://doi.org/10.1186/s13059-014-0550-8
-8. Robinson, M. D., McCarthy, D. J., & Smyth, G. K. (2010). edgeR: a Bioconductor package for differential expression analysis of digital gene expression data. Bioinformatics (Oxford, England), 26(1), 139–140. https://doi.org/10.1093/bioinformatics/btp616
-9. Wu, T., Hu, E., Xu, S., Chen, M., Guo, P., Dai, Z., Feng, T., Zhou, L., Tang, W., Zhan, L., Fu, X., Liu, S., Bo, X., & Yu, G. (2021). clusterProfiler 4.0: A universal enrichment tool for interpreting omics data. Innovation (Cambridge (Mass.)), 2(3), 100141. https://doi.org/10.1016/j.xinn.2021.100141
-10. Ashburner, M., Ball, C. A., Blake, J. A., Botstein, D., Butler, H., Cherry, J. M., Davis, A. P., Dolinski, K., Dwight, S. S., Eppig, J. T., Harris, M. A., Hill, D. P., Issel-Tarver, L., Kasarskis, A., Lewis, S., Matese, J. C., Richardson, J. E., Ringwald, M., Rubin, G. M., & Sherlock, G. (2000). Gene ontology: tool for the unification of biology. The Gene Ontology Consortium. Nature genetics, 25(1), 25–29. https://doi.org/10.1038/75556
-11. Kanehisa, M., & Goto, S. (2000). KEGG: kyoto encyclopedia of genes and genomes. Nucleic acids research, 28(1), 27–30. https://doi.org/10.1093/nar/28.1.27
+4. `r genome_ref`
+5. Li, H., Handsaker, B., Wysoker, A., Fennell, T., Ruan, J., Homer, N., Marth, G., Abecasis, G., Durbin, R., & 1000 Genome Project Data Processing Subgroup (2009). The Sequence Alignment/Map format and SAMtools. Bioinformatics (Oxford, England), 25(16), 2078–2079 https://doi.org/10.1093/bioinformatics/btp352
+6. Tarasov, A., Vilella, A. J., Cuppen, E., Nijman, I. J., & Prins, P. (2015). Sambamba: fast processing of NGS alignment formats Bioinformatics (Oxford, England), 31(12), 2032–2034. https://doi.org/10.1093/bioinformatics/btv098
+7. Liao, Y., Smyth, G. K., & Shi, W. (2019). The R package Rsubread is easier, faster, cheaper and better for alignment and quantification of RNA sequencing reads. Nucleic acids research, 47(8), e47. https://doi.org/10.1093/nar/gkz114
+8. Love, M. I., Huber, W., & Anders, S. (2014). Moderated estimation of fold change and dispersion for RNA-seq data with DESeq2. Genome biology, 15(12), 550. https://doi.org/10.1186/s13059-014-0550-8
+9. Robinson, M. D., McCarthy, D. J., & Smyth, G. K. (2010). edgeR: a Bioconductor package for differential expression analysis of digital gene expression data. Bioinformatics (Oxford, England), 26(1), 139–140. https://doi.org/10.1093/bioinformatics/btp616
+10. Wu, T., Hu, E., Xu, S., Chen, M., Guo, P., Dai, Z., Feng, T., Zhou, L., Tang, W., Zhan, L., Fu, X., Liu, S., Bo, X., & Yu, G. (2021). clusterProfiler 4.0: A universal enrichment tool for interpreting omics data. Innovation (Cambridge (Mass.)), 2(3), 100141. https://doi.org/10.1016/j.xinn.2021.100141
+11. Ashburner, M., Ball, C. A., Blake, J. A., Botstein, D., Butler, H., Cherry, J. M., Davis, A. P., Dolinski, K., Dwight, S. S., Eppig, J. T., Harris, M. A., Hill, D. P., Issel-Tarver, L., Kasarskis, A., Lewis, S., Matese, J. C., Richardson, J. E., Ringwald, M., Rubin, G. M., & Sherlock, G. (2000). Gene ontology: tool for the unification of biology. The Gene Ontology Consortium. Nature genetics, 25(1), 25–29. https://doi.org/10.1038/75556
+12. Kanehisa, M., & Goto, S. (2000). KEGG: kyoto encyclopedia of genes and genomes. Nucleic acids research, 28(1), 27–30. https://doi.org/10.1093/nar/28.1.27

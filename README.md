@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8354341.svg)](https://doi.org/10.5281/zenodo.8354341)
+
 # RNAseq_workflow
 This is a RNAseq workflow.
 # Dependency
@@ -82,3 +84,7 @@ There is a `report.Rmd` file, open it in Rstudio and click `knit`, you will get 
 ```bash
 tar zcvf RNAseq_result.tar.gz result/ report.html image/ libs/
 ```
+
+# Citation
+If you use this pipeline to processing transcriptome sequencing data, please cite:
+> Wang Pengfei. (2023). laowang1992/RNAseq_workflow: a workflow for processing transcriptome sequencing data (1.0.0). Zenodo. https://doi.org/10.5281/zenodo.8354341
