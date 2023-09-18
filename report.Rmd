@@ -395,7 +395,7 @@ for (i in 1:nrow(contrast)) {
 
 # 参考文献 {-}
 <div id="ref"></div>
-1. Wang Pengfei. (2023). laowang1992/RNAseq_workflow: a workflow for processing transcriptome sequencing data (1.0.0). Zenodo. https://doi.org/10.5281/zenodo.8354341
+1. Wang Pengfei. (2023). laowang1992/RNAseq_workflow: a workflow for processing transcriptome sequencing data (v1.0.0). Zenodo. https://doi.org/10.5281/zenodo.8354341
 2. Chen, S., Zhou, Y., Chen, Y., & Gu, J. (2018). fastp: an ultra-fast all-in-one FASTQ preprocessor. Bioinformatics (Oxford, England), 34(17), i884–i890. https://doi.org/10.1093/bioinformatics/bty560
 ```{r, results='asis'}
 if (aligner == "hisat2") {
