@@ -390,6 +390,16 @@ for (i in 1:nrow(contrast)) {
 }
 ```
 
+# 引用 {-}
+如果在你的文章里使用了本次转录组分析的结果，请在“Code availability”部分引用转录组分析流程（laowang1992/RNAseq_workflow）<sup>[1](#ref)</sup>。例如：
+
+> **Code availability**<br>
+> Codes for transcriptome analysis is deposited in Zenodo (https://doi.org/10.5281/zenodo.8354341).
+
+或者
+
+> **Code availability**<br>
+Codes for transcirptome analysis is available at Zenodo (https://doi.org/10.5281/zenodo.8354341).
 
 ------
 
