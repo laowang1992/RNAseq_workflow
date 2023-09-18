@@ -54,10 +54,10 @@ All the dependency and version are based on my current platform. The other versi
 ## Sample information
 Prepare `00.data/samples.txt`, this is a tab-separated file with four columns (groupName sampleName fq1 fq2), e.g.:
 ```
-groupA	sampleA1	\<path to in1.fq of sampleA1>	\<path to in2.fq of sampleA1>
-groupA	sampleA2	\<path to in1.fq of sampleA2>	\<path to in2.fq of sampleA2>
-groupB	sampleB1	\<path to in1.fq of sampleB1>	\<path to in2.fq of sampleB1>
-groupB	sampleB2	\<path to in1.fq of sampleB2>	\<path to in2.fq of sampleN2>
+groupA	sampleA1	<path to in1.fq of sampleA1>	<path to in2.fq of sampleA1>
+groupA	sampleA2	<path to in1.fq of sampleA2>	<path to in2.fq of sampleA2>
+groupB	sampleB1	<path to in1.fq of sampleB1>	<path to in2.fq of sampleB1>
+groupB	sampleB2	<path to in1.fq of sampleB2>	<path to in2.fq of sampleN2>
 ```
 ## Contrasts for DEG analysis
 Prepare `04.DE_analysis/contrasts.txt`, this is a tab-separated file with two columns (treatment control), e.g.:
