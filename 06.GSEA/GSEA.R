@@ -91,6 +91,18 @@ if (nrow(gseGO_res@result)>0) {
 # create GSEA GO dictionary and plot
 if (!dir.exists(paste(filename, "GO", sep = "/"))) {
   dir.create(paste(filename, "GO", sep = "/"), recursive = T)
+} else {
+  # 指定文件夹路径  
+  folder_path <- paste(filename, "GO", sep = "/") 
+  
+  # 获取文件夹中的文件列表  
+  file_list <- list.files(folder_path)  
+  
+  # 遍历文件列表，删除每个文件  
+  for (file in file_list) {  
+    file_path <- file.path(folder_path, file)  
+    file.remove(file_path)  
+  }
 }
 for (i in seq_along(gseGO_res@result$ID)) {
   cat("Plot ", gseGO_res@result$ID[i], " ", gseGO_res@result$Description[i], "\n", sep = "")
@@ -135,6 +147,18 @@ if (nrow(gseKEGG_res@result)>0) {
 # create GSEA KEGG dictionary and plot
 if (!dir.exists(paste(filename, "KEGG", sep = "/"))) {
   dir.create(paste(filename, "KEGG", sep = "/"), recursive = T)
+} else {
+  # 指定文件夹路径  
+  folder_path <- paste(filename, "KEGG", sep = "/") 
+  
+  # 获取文件夹中的文件列表  
+  file_list <- list.files(folder_path)  
+  
+  # 遍历文件列表，删除每个文件  
+  for (file in file_list) {  
+    file_path <- file.path(folder_path, file)  
+    file.remove(file_path)  
+  }
 }
 for (i in seq_along(gseKEGG_res@result$ID)) {
   cat("Plot ", gseKEGG_res@result$ID[i], " ", gseKEGG_res@result$Description[i], "\n", sep = "")

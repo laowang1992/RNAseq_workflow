@@ -220,8 +220,10 @@ main: {
     print STDERR "\n\n* Outputting combined matrix.\n\n";
     
     my $counts_matrix_file = "$out_prefix.counts.matrix";
+    my $FPKM_matrix_file = "$out_prefix.FPKM.matrix";
     my $TPM_matrix_file = "$out_prefix.TPM.not_cross_norm";
     open (my $ofh_counts, ">$counts_matrix_file") or die "Error, cannot write file $counts_matrix_file";
+    open (my $ofh_FPKM, ">$FPKM_matrix_file") or die "Error, cannot write file $FPKM_matrix_file";
     open (my $ofh_TPM, ">$TPM_matrix_file") or die "Error, cannot write file $TPM_matrix_file";
 
     { # check to see if they're unique
@@ -242,11 +244,13 @@ main: {
     
 
     print $ofh_counts join("\t", "", @filenames) . "\n";
+    print $ofh_FPKM join("\t", "", @filenames) . "\n";
     print $ofh_TPM join("\t", "", @filenames) . "\n";
 
     foreach my $acc (keys %data) {
         
         print $ofh_counts "$acc";
+        print $ofh_FPKM "$acc";
         print $ofh_TPM "$acc";
         
         foreach my $file (@files) {
@@ -255,6 +259,14 @@ main: {
             unless (defined $count) {
                 $count = "NA";
             }
+            my $fpkm = $data{$acc}->{$file}->{FPKM};
+            if (defined $fpkm) {
+				$fpkm = $fpkm/1;
+			}
+			else {
+				$fpkm = "NA";
+			}
+            
             my $tpm = $data{$acc}->{$file}->{TPM};
             if (defined $tpm) {
                 $tpm = $tpm/1;
@@ -264,14 +276,17 @@ main: {
             }
 
             print $ofh_counts "\t$count";
+            print $ofh_FPKM "\t$fpkm";
             print $ofh_TPM "\t$tpm";
         }
         
         print $ofh_counts "\n";
+        print $ofh_FPKM "\n";
         print $ofh_TPM "\n";
 
     }
     close $ofh_counts;
+    close $ofh_FPKM;
     close $ofh_TPM;
     
 
