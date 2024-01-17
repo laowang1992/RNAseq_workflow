@@ -143,12 +143,22 @@ cd ${work_dir}/04.DE_analysis
 #	--contrasts contrasts.txt
 
 # contrasts.txt: one contrast one line, "treatment	control"
-Rscript run_DESeq2.R \
-	--matrix ../03.Merge_result/genes.counts.matrix \
-	--samples_file ../00.data/samples.txt \
-	--min_reps 2 \
-	--min_cpm 1 \
-	--contrasts ./contrasts.txt
+if [ $de_method = DESeq2 ]; then
+	Rscript run_DESeq2.R \
+		--matrix ../03.Merge_result/genes.counts.matrix \
+		--samples_file ../00.data/samples.txt \
+		--min_reps 2 \
+		--min_cpm 1 \
+		--contrasts ./contrasts.txt
+elif [ $de_method = edgeR ]; then
+	Rscript run_edgeR.R \
+		--matrix ../03.Merge_result/genes.counts.matrix \
+		--samples_file ../00.data/samples.txt \
+		--min_reps 1 \
+		--min_cpm 1 \
+		--dispersion $dispersion \
+		--contrasts ./contrasts.txt
+fi
 # upset plot
 #Rscript upset.R --de_log2FoldChange ${de_log2FoldChange} --de_padj ${de_padj}
 
