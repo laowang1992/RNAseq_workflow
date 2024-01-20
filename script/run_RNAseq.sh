@@ -167,6 +167,7 @@ for i in ./*DE_results.txt
 do
 Rscript Volcano_plot.R \
 	--de_result ${i} \
+	--de_method ${de_method} \
 	--padj_cutoff ${de_padj} \
 	--log2FC_cutoff ${de_log2FoldChange} \
 	--heatmap TRUE
