@@ -79,11 +79,13 @@ Pvolcano <- ggplot(data = de_result, aes(x = log2FoldChange, y = -log10(padj))) 
 # add selected gene
 if (!is.na(select_geneID)) {
   library(ggrepel)
-  selected_genes <- read_tsv(file = select_geneID, col_names = F) %>% pull(X1)
-  res_selected <- filter(de_result, GeneID %in% selected_genes)
+  selected_genes <- read_tsv(file = select_geneID, col_names = c("GeneID", "GeneName"))
+  res_selected <- selected_genes %>% left_join(de_result, by = "GeneID")
   Pvolcano <- Pvolcano + 
     geom_point(data = res_selected, size = 2, shape = 21, stroke = 1.5) +
-    geom_text_repel(data = res_selected, aes(label = GeneID))
+    geom_text_repel(data = res_selected, aes(label = GeneName), fontface='italic', 
+                    nudge_x = ifelse(res_selected$log2FoldChange > 0, 1.5, -1.5), 
+                    nudge_y = ifelse(res_selected$log2FoldChange > 0, 10, 10), force = 10)
 }
 
 if(require(ggtext)){
