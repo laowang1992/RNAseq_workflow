@@ -79,7 +79,7 @@ write_tsv(gseGO_res@result, paste(filename, "gseGO.txt", sep = "."))
 write_csv(gseGO_res@result, paste(filename, "gseGO.csv", sep = "."))
 
 if (nrow(gseGO_res@result)>0) {
-  GO_emap <- emapplot(pairwise_termsim(gseGO_res), cex_label_category=.8, cex_line=.5) + 
+  GO_emap <- emapplot(pairwise_termsim(gseGO_res), cex.params = list(category_label = .8, line = .5)) + 
     scale_fill_continuous(low = "#e06663", high = "#327eba", name = "p.adjust",
                           guide = guide_colorbar(reverse = TRUE, order=1), trans='log10')
   ggsave(GO_emap, filename = paste(filename, "gseGO_emapplot.pdf", sep = "."), width = 10, height = 9)
@@ -135,7 +135,7 @@ write_tsv(gseKEGG_res@result, paste(filename, "gseKEGG.txt", sep = "."))
 write_csv(gseKEGG_res@result, paste(filename, "gseKEGG.csv", sep = "."))
 
 if (nrow(gseKEGG_res@result)>0) {
-  KEGG_emap <- emapplot(pairwise_termsim(gseKEGG_res), cex_label_category=.8, cex_line=.5) + 
+  KEGG_emap <- emapplot(pairwise_termsim(gseKEGG_res), cex.params = list(category_label = .8, line = .5)) + 
     scale_fill_continuous(low = "#e06663", high = "#327eba", name = "p.adjust",
                           guide = guide_colorbar(reverse = TRUE, order=1), trans='log10')
   ggsave(KEGG_emap, filename = paste(filename, "gseKEGG_emapplot.pdf", sep = "."), width = 10, height = 9)

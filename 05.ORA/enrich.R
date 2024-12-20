@@ -85,9 +85,9 @@ write_csv(de_ego_df, paste(out_prefix, "GO_result", "csv", sep = "."))
 write_tsv(de_ego_df, paste(out_prefix, "GO_result", "txt", sep = "."))
 
 ## GO绘图
-#
+# 
 if (nrow(de_ego_df)>0) {
-  GO_emap <- emapplot(pairwise_termsim(de_ego), cex_label_category=.8, cex_line=.5) + 
+  GO_emap <- emapplot(pairwise_termsim(de_ego), cex.params = list(category_label = .8, line = .5)) + 
     scale_fill_continuous(low = "#e06663", high = "#327eba", name = "p.adjust",
                           guide = guide_colorbar(reverse = TRUE, order=1), trans='log10')
   ggsave(GO_emap, filename = paste(out_prefix, "GO_emapplot.pdf", sep = "."), width = 10, height = 9)
@@ -134,7 +134,7 @@ write_tsv(de_ekp_df, paste(out_prefix, "KEGG_result", "txt", sep = "."))
 
 # KEGG绘图
 if (nrow(de_ekp_df)>0) {
-  KEGG_emap <- emapplot(pairwise_termsim(de_ekp), cex_label_category=.8, cex_line=.5) + 
+  KEGG_emap <- emapplot(pairwise_termsim(de_ekp), cex.params = list(category_label = .8, line = .5)) + 
     scale_fill_continuous(low = "#e06663", high = "#327eba", name = "p.adjust",
                           guide = guide_colorbar(reverse = TRUE, order=1), trans='log10')
   ggsave(KEGG_emap, filename = paste(out_prefix, "KEGG_emapplot.pdf", sep = "."), width = 10, height = 9)

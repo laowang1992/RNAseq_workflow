@@ -18,10 +18,10 @@ plotGO <- function(df, prefix, headn = 15, width = 7, height = nrow(ego_df)*0.2+
   p <- ggplot(ego_df,
               aes(NES, fct_reorder(Description, NES), fill = -log10(pvalue))) +
     geom_col() +
-    geom_segment(mapping = aes(x = min(ego_df$NES, 0),
+    geom_segment(mapping = aes(x = min(NES, 0),
                                xend = ifelse(sign(NES) > 0, 0, NES),
                                yend = Description),
-                 color = "gray", linetype = "dashed", size = 1) +
+                 color = "gray", linetype = "dashed", linewidth = 1) +
     scale_x_continuous(expand = c(0.02 , 0.02)) +
     scale_fill_distiller(palette = "Blues", direction = 1) +
     cowplot::theme_half_open() +
@@ -45,10 +45,10 @@ plotKEGG <- function(df, prefix, headn = 20, width = 7, height = nrow(ekp_df)*0.
   p <- ggplot(ekp_df,
               aes(NES, fct_reorder(Description, NES), fill = -log10(pvalue))) +
     geom_col() +
-    geom_segment(mapping = aes(x = min(ekp_df$NES, 0),
+    geom_segment(mapping = aes(x = min(NES, 0),
                                xend = ifelse(sign(NES) > 0, 0, NES),
                                yend = Description),
-                 color = "gray", linetype = "dashed", size = 1) +
+                 color = "gray", linetype = "dashed", linewidth = 1) +
     scale_x_continuous(expand = c(0.02 , 0.02)) +
     scale_fill_distiller(palette = "Blues", direction = 1) +
     cowplot::theme_half_open() +
