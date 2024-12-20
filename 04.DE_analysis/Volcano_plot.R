@@ -38,7 +38,7 @@ library(tidyverse)
 library(ggsci)
 library(cowplot)
 
-if (de_method == "DEseq2") {
+if (de_method == "DESeq2") {
   logFC <- "log2FoldChange"
   padj <- "padj"
   if (require(ggtext)) {
