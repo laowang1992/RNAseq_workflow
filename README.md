@@ -13,7 +13,6 @@ All the dependency and version are based on my current platform. The other versi
     - jsonlite_1.8.5
     - ggsci_3.0.0
     - cowplot_1.1.1
-    - reshape2_1.4.4
     - rmarkdown_2.22
     - knitr_1.43
     - DT_0.28
