@@ -3,16 +3,16 @@ library(tidyverse)
 library(ggplot2)
 library(ggsci)
 library(cowplot)
-library(reshape2)
 # 读取数据并转换格???
-df <- read.table(file="genes.TMM.EXPR.matrix", header=T)
-head(df)
-d <- melt(df)
+gene_exp <- read.table(file = "genes.TMM.EXPR.matrix", 
+                       header = T, row.names=1)
+head(gene_exp)
+d <- gene_exp %>% rownames_to_column("GeneID") %>% as_tibble() %>% gather(key = sample, value = tmm, -GeneID)
 
-colourCount = ncol(df)
+colourCount = ncol(gene_exp)
 getPalette = colorRampPalette(RColorBrewer::brewer.pal(8, "Set1"))
 
-p1 <- ggplot(data=d, aes(x=variable, y=log10(value+1), fill=variable)) +
+p1 <- ggplot(data=d, aes(x=sample, y=log10(tmm+1), fill=sample)) +
   #geom_violin(size=.5) +
   geom_boxplot(width=.5, size=.5) +
   scale_fill_manual(values = getPalette(colourCount)) +
@@ -20,11 +20,11 @@ p1 <- ggplot(data=d, aes(x=variable, y=log10(value+1), fill=variable)) +
   #scale_fill_aaas() +
   theme_half_open() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
-ggsave(p1, filename="genes.TMM.EXPR.boxplot.pdf", height = 5, width = ncol(df)*0.4+2)
-ggsave(p1, filename="genes.TMM.EXPR.boxplot.png", height = 5, width = ncol(df)*0.4+2, dpi = 500)
+ggsave(p1, filename="genes.TMM.EXPR.boxplot.pdf", height = 5, width = ncol(gene_exp)*0.4+2)
+ggsave(p1, filename="genes.TMM.EXPR.boxplot.png", height = 5, width = ncol(gene_exp)*0.4+2, dpi = 500)
 
-p2 <-ggplot(data=d, aes(x=log10(value+1), color=variable)) +
-  geom_density(size=1) +
+p2 <-ggplot(data=d, aes(x=log10(tmm+1), color=sample)) +
+  geom_density(linewidth=1) +
   scale_color_manual(values = getPalette(colourCount)) +
   labs(x = "log10(TMM+1)", y = "Density", color = NULL) +
   theme_half_open()
@@ -32,8 +32,6 @@ ggsave(p2, filename="genes.TMM.EXPR.density.pdf", height = 4, width = 6)
 ggsave(p2, filename="genes.TMM.EXPR.density.png", height = 4, width = 6, dpi = 500)
 
 
-gene_exp <- read.table("genes.TMM.EXPR.matrix", 
-                       header = T, row.names=1)
 metadata <- read.table(file = "../00.data/samples.txt")
 rownames(metadata) <- metadata$V2
 metadata <- metadata %>% select(Group = V1)

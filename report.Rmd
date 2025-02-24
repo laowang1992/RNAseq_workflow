@@ -76,6 +76,10 @@ exprTMM <- read.delim(file = "./03.Merge_result/genes.TMM.EXPR.matrix", header =
   rownames_to_column(var = "GeneID") %>% as_tibble() %>% 
   left_join(anno, by = "GeneID")
 write_csv(x = exprTMM, file = "./result/02.Expression/genes.TMM.csv")
+exprFPKM <- read.delim(file = "./03.Merge_result/genes.FPKM.matrix", header = T, row.names = 1, sep = "\t") %>% 
+  rownames_to_column(var = "GeneID") %>% as_tibble() %>% 
+  left_join(anno, by = "GeneID")
+write_csv(x = exprFPKM, file = "./result/02.Expression/genes.FPKM.csv")
 file.copy(from = "./03.Merge_result/correlation.csv", to = "./result/02.Expression/correlation.csv")
 file.copy(from = "./03.Merge_result/correlation_with_Cluster.pdf", to = "./result/02.Expression/correlation_with_Cluster.pdf")
 file.copy(from = "./03.Merge_result/correlation_with_Cluster.png", to = "./result/02.Expression/correlation_with_Cluster.png")
